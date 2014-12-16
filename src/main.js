@@ -83,24 +83,31 @@ function createDictTable(text){
         helper = function(){
             var lines = text.split('\n');
             var table = new DictArray();
+            var root = '---';
             lines.forEach(function (line) {
                 if (line != '' && line[0] != ';') {
                     var def = {};
                     elems = line.split(/\s/);
 
-                    //TODO add root and pos
+                    def.root = root;
                     if(elems[1] == undefined){
                         console.log('bad elem: ',elems);
                     }
                     def.word = elems[1].trim();
                     def.morph = elems[2].trim();
                     meta = elems.slice(3).join(' ').split(/ <pos>|<\/pos> /);
-                    def.def = meta[0].trim();
+                    def.def = meta[0].trim().split(/;/).join(', ');
                     if(meta[1] == undefined){
                         meta[1] = "";
                     }
                     def.pos = meta[1].trim();
                     table.addItem(elems[0], def);
+                }
+                else if(line != '' && line.trim() == ';'){
+                    root = '---';
+                }
+                else if(line != '' && line.slice(0,5) == ';--- '){
+                    root = line.split(/\s/)[1];
                 }
             });
             resolve(table);
@@ -112,14 +119,15 @@ function createDictTable(text){
 
 function detransliterate(word){
     for(var key in buck2uni){
-        word = word.replace(key, buck2uni[key]);
+        var newKey = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+        word = word.replace(new RegExp(newKey,"g"), buck2uni[key]);
     }
     return word;
 }
 
 function transliterate(word){
     for(var key in buck2uni){
-        word = word.replace(buck2uni[key], key);
+        word = word.replace(new RegExp(buck2uni[key],"g"), key);
     }
     return word;
 }
@@ -189,11 +197,11 @@ function lookup(word){
     //takes in arabic word, returns arabic
     word = transliterate(word);
     var data = [];
+
     for(var i = 0; i < word.length; i++){
-        for(var j = i; j <= word.length; j++){
+        for(var j = i + 1; j <= word.length; j++){
             var current = lookupPrefStemSuff(word.slice(0, i), word.slice(i, j), word.slice(j));
             data = data.concat(current);
-
         }
     }
     return data;
@@ -206,14 +214,34 @@ function lookupPrefStemSuff(pref, stem, suff){
 
     var data = [];
 
+    var bracketify = function(word, space){
+
+        if(word && word[0]!='['){
+            if(space == 1)
+                return ' [' + word + ']';
+            else if(space == 2){
+                return '[' + word + '] ';
+            }
+            else{
+                return '[' + word + ']';
+            }
+        }
+        else return '';
+    };
+
+
     prefMatches.forEach(function(pref){
        stemMatches.forEach(function(stem){
            suffMatches.forEach(function(suff){
                if(isObeysGrammar(pref.morph, stem.morph, suff.morph)) {
                    var combine = {};
+                   //console.log("ok so far");
+                   combine.root = detransliterate(stem.root);
                    combine.word =
                        [detransliterate(pref.word), detransliterate(stem.word), detransliterate(suff.word)].join('');
-                   combine.def = [pref.def, stem.def, suff.def].join(', ');
+                   //console.log('boom');
+                   combine.def = [bracketify(pref.def, 2), stem.def, bracketify(suff.def, 1)].join('');
+                   //console.log(combine.def);
                    combine.pos = [pref.pos, stem.pos, suff.pos].join(', ');
                    combine.morph = [pref.morph, stem.morph, suff.morph].join(', ');
                    data.push(combine);
@@ -232,7 +260,6 @@ function isObeysGrammar(prefMorph, stemMorph, suffMorph){
 }
 
 // Loading dictionary code
-// TODO remove bad whitespace in data and add root
 
 var initialized = false;
 var dictstems;
@@ -268,140 +295,82 @@ var arabicChars = "";
 for(var char in uni2buck){
     arabicChars += char;
 }
-var arabicWordRegex = new RegExp("([" + arabicChars+"]+)");
+//var arabicWordRegex = new RegExp("([" + arabicChars+"]+)");
 function isArabicWord(text){
     return arabicWordRegex.test(text);
 }
 
-function wrapArabicWords(element){
+function createDefintionsHTML(data){
+    var str = "";
+    str += "<table class='opentip-definition-table-31245'>";
+    if(!data.length){
+        str += "<tr>";
+        str += "<td>" + "No definition found" + "</td>";
+        str += "</tr>";
+    }
+    else {
+        str += "<tr>";
+        str += "<th>" + "Word" + "</th>";
+        str += "<th>" + "Definition" + "</th>";
+        str += "<th>" + "Root" + "</th>";
+        str += "</tr>";
+        data.forEach(function (entry) {
+            str += "<tr>";
+            str += "<td>" + entry.word + "</td>";
+            str += "<td>" + entry.def + "</td>";
+            str += "<td>" + entry.root + "</td>";
+            str += "</tr>";
+        });
+    }
+    str += "</table>";
+    return str;
+}
+
+function wrapArabicWords(){
     // puts spans around arabic words
-
-    var curElem, a=[], walk=document.createTreeWalker( element , NodeFilter.SHOW_TEXT, null, false);
+    console.log('beginning wrap task');
+    var curElem, a=[], walk=document.createTreeWalker( document.documentElement, NodeFilter.SHOW_TEXT, null, false);
     while(curElem=walk.nextNode()){
-        var regex= new RegExp("([" + arabicChars+"]+)");
-        //console.log(curElem.nodeValue);
-        //curElem.nodeValue = "blocked";
-        curElem.nodeValue = curElem.nodeValue.replace(regex, "<span>$1</span>");
+        a.push(curElem);
     }
-    /*element.childNodes.forEach(function(child){
-        wrapArabicWords(child);
+    a.forEach(function(curElem){
+        var regex= new RegExp("([" + arabicChars+"]+)", "g");
+
+        var newHTML = curElem.nodeValue.replace(regex,
+            "<span class='arabic-wrapped-31245' " +
+            "onmouseover='this.style.background = \"#FFFF00\";this.style.color = \"black\"' " +
+            "onmouseout='this.style.background = \"transparent\";this.style.color = \"inherit\"''" +
+            ">$1</span>");
+        if(newHTML == curElem.nodeValue){
+            return;
+        }
+
+        var spanElem = document.createElement("span");
+        spanElem.innerHTML = newHTML;
+        //console.log("parent: ", curElem.parentNode);
+        curElem.parentNode.replaceChild(spanElem, curElem);
     });
-    if(element.nodeType == Node.TEXT_NODE){
-        var regex = new RegExp("[" + arabicChars+"]+");
-        element.value = element.value.replace(regex, "<span>$0</span>")
-    }*/
-}
+    //console.log('we are here');
+    var elems = document.getElementsByClassName('arabic-wrapped-31245');
+    for(var i = 0; i < elems.length; i++){
+        var elem = elems[i];
+        //console.log(lookup(elem.textContent));
+        new Opentip(elem, createDefintionsHTML(lookup(elem.textContent)), {style:'glass'});
 
-function getWordDataAtPoint(elem, x, y) {
-    if(elem.nodeType == elem.TEXT_NODE) {
-        var range = elem.ownerDocument.createRange();
-        range.selectNodeContents(elem);
-        var currentPos = 0;
-        var endPos = range.endOffset;
-        while(currentPos+1 < endPos) {
-            range.setStart(elem, currentPos);
-            range.setEnd(elem, currentPos+1);
-            if(range.getBoundingClientRect().left <= x && range.getBoundingClientRect().right  >= x &&
-                range.getBoundingClientRect().top  <= y && range.getBoundingClientRect().bottom >= y) {
-                range.expand("word");
-                var ret = range.toString();
-                range.detach();
-                //console.log(range.getBoundingClientRect());
-                var wordData = {"word": ret, "boundingRect": range.getBoundingClientRect()};
-                return(wordData);
-            }
-            currentPos += 1;
-        }
-    } else {
-        for(var i = 0; i < elem.childNodes.length; i++) {
-            var range = elem.childNodes[i].ownerDocument.createRange();
-            range.selectNodeContents(elem.childNodes[i]);
-            if(range.getBoundingClientRect().left <= x && range.getBoundingClientRect().right  >= x &&
-                range.getBoundingClientRect().top  <= y && range.getBoundingClientRect().bottom >= y) {
-                range.detach();
-                return(getWordDataAtPoint(elem.childNodes[i], x, y));
-            } else {
-                range.detach();
-            }
-        }
     }
-    return(null);
-}
-
-var popupDiv;
-var openTip;
-var tooltipContent = "crap";
-
-function showPopupDefinition(wordData){
-    //TODO decision to show shouldnt be here
-    var result = lookup(wordData.word)[0];
-    var text = "No definition found";
-    if(result){
-        text = result.def;
-    }
-    console.log("showing tooltip");
-    popupDiv.style.visibility = 'visible';
-    var rect = wordData.boundingRect;
-    //popupDiv.style.top = rect.top.toString() + "px";
-    console.log(popupDiv.style.top);
-    //popupDiv.style.left = rect.left.toString() + "px";
-    //popupDiv.style.width = rect.width.toString() + "px";
-    //popupDiv.style.height = rect.height.toString() + "px";
-    openTip.setContent(text);
-    openTip.prepareToShow();
-
-}
-
-function createPopupDiv(){
-    popupDiv = document.createElement('div');
-    document.body.appendChild(popupDiv);
-    popupDiv.id = "arabic-dictionary-popup-31245";
-
-    popupDiv.style.zIndex = '99999999';
-    popupDiv.style.width = '0px';
-    popupDiv.style.height = '0px';
-    popupDiv.style.visibility = 'visible';
-    popupDiv.style.position = 'fixed';
-    //popupDiv.style.background = "white";
-    openTip = new Opentip(popupDiv, {style: 'glass', showOn: null});
-    /*openTip = new Opentip(popupDiv,
-        { showOn: null,style: 'glass', target: popupDiv, tipJoint: "bottom" });*/
-    var tip = new Opentip(document.getElementById("comp-top-stories-promo"), "hello");
+    console.log("wrapping complete");
 
 
-    //popupDiv.innerHTML = "hello there!";
-    //popupDiv.style.background = "white";
-
-
-}
-
-function mousemoveLookup(e){
-    var wordData = getWordDataAtPoint(e.target, e.x, e.y);
-    if(wordData === null){
-        //openTip.hide();
-    }
-    else if(isArabicWord(wordData.word)){
-        console.log(wordData.word);
-        showPopupDefinition(wordData);
-    }
 }
 
 function initialize(){
     loadDictData().then(function(){
-        // injecting popup
-        createPopupDiv();
-
-        //TODO handle if there is existing handler
-        document.documentElement.onmousemove = mousemoveLookup;
-
+        setTimeout(wrapArabicWords, 0);
     })
 }
 
+
 initialize();
 
+//TODO clear css (esp spans), figure out gloss
 
-/*
-loadDictData().then(function(){
-    console.log("lookup: ", lookup("يكتب"));
-
-});*/
