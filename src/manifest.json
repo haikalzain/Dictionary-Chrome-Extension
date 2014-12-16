@@ -1,0 +1,28 @@
+{
+  // Required
+  "manifest_version": 2,
+  "name": "Arabic-Dict",
+  "version": "1.0",
+  "description": "Lookup arabic words on the fly",
+  "permissions": [
+    "activeTab",
+    "http://www.aratools.com/*"
+  ],
+  "web_accessible_resources": [
+    "data/tableab",
+    "data/tableac",
+    "data/tablebc",
+    "data/dictprefixes",
+    "data/dictstems",
+    "data/dictsuffixes"
+  ],
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["main.js", "libs/opentip-native.min.js"],
+    "css": ["libs/opentip.css"],
+    "run_at": "document_end"
+  }]
+  /*"background": {
+    "scripts": ["main.js"]
+  }*/
+}
