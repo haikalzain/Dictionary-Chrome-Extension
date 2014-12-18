@@ -1,16 +1,33 @@
 .opentip-definition-table-31245{
-    font-family: Tahoma;
+    border-collapse: separate;
     font-size: 14px;
+    font-family: Tahoma;
     line-height: 22px;
     border-spacing: 0px;
-    border-collapse: separate;
-    direction: ltr;
+}
+.opentip-definition-container-31245{
+    #overflow: auto;
+    #max-height: 500px;
 }
 .opentip-definition-table-31245 th{
     text-align: center;
     padding: 10px;
 }
 .opentip-definition-table-31245 td, th{
+    font-size: 14px;
+    line-height: 20px;
+    direction: ltr;
+    font-family: Tahoma;
+    vertical-align: top;
     padding: 7px;
     font-weight: normal;
 }
+.opentip-definition-table-31245 .arabic-text-31245{
+    font-family: initial;
+    font-size: 18px;
+    direction: rtl;
+}
+.opentip-container{
+    max-width: 1000px;
+}
+

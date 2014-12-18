@@ -1,8 +1,4 @@
 
-function print(contents){
-    document.write(contents);
-}
-
 function readFile(url){
     return new Promise(function(resolve, reject){
         var req = new XMLHttpRequest();
@@ -188,11 +184,6 @@ for (var key in buck2uni){
     uni2buck[buck2uni[key]] = key;
 }
 
-function ArabicWord(arabic_word){
-    // TODO check if need to handle alif and ya
-    // TODO Implement if needed
-}
-
 function lookup(word){
     //takes in arabic word, returns arabic
     word = transliterate(word);
@@ -285,7 +276,7 @@ function loadDictData() {
         tablebc = values[4];
         tableac = values[5];
         initialized = true;
-        console.log('initialization complete');
+        //console.log('initialization complete');
     });
 
 };
@@ -302,6 +293,7 @@ function isArabicWord(text){
 
 function createDefintionsHTML(data){
     var str = "";
+    str += "<div class='opentip-definition-container-31245'>";
     str += "<table class='opentip-definition-table-31245'>";
     if(!data.length){
         str += "<tr>";
@@ -316,19 +308,20 @@ function createDefintionsHTML(data){
         str += "</tr>";
         data.forEach(function (entry) {
             str += "<tr>";
-            str += "<td>" + entry.word + "</td>";
+            str += "<td class='arabic-text-31245'>" + entry.word + "</td>";
             str += "<td>" + entry.def + "</td>";
-            str += "<td>" + entry.root + "</td>";
+            str += "<td class='arabic-text-31245'>" + entry.root + "</td>";
             str += "</tr>";
         });
     }
     str += "</table>";
+    str += "</div>";
     return str;
 }
 
 function wrapArabicWords(){
     // puts spans around arabic words
-    console.log('beginning wrap task');
+    //console.log('beginning wrap task');
     var curElem, a=[], walk=document.createTreeWalker( document.documentElement, NodeFilter.SHOW_TEXT, null, false);
     while(curElem=walk.nextNode()){
         a.push(curElem);
@@ -351,14 +344,16 @@ function wrapArabicWords(){
         curElem.parentNode.replaceChild(spanElem, curElem);
     });
     //console.log('we are here');
+    Opentip.lastZIndex = 1000000000;
     var elems = document.getElementsByClassName('arabic-wrapped-31245');
     for(var i = 0; i < elems.length; i++){
         var elem = elems[i];
         //console.log(lookup(elem.textContent));
         new Opentip(elem, createDefintionsHTML(lookup(elem.textContent)), {style:'glass'});
 
+
     }
-    console.log("wrapping complete");
+    //console.log("wrapping complete");
 
 
 }
@@ -372,5 +367,5 @@ function initialize(){
 
 initialize();
 
-//TODO clear css (esp spans), figure out gloss
+//TODO clear css (esp spans), figure out gloss, strip diacritics bug, make update dynamic (e.g. youtube)
 
