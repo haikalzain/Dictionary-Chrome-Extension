@@ -128,6 +128,13 @@ function transliterate(word){
     return word;
 }
 
+function removeDiacriticsBuckwalter(word){
+    harakaat.forEach(function(h){
+        word = word.replace(new RegExp(h, "g"), "");
+    });
+    return word;
+}
+
 var buck2uni = {
     "'": "\u0621",  // hamza-on-the-line
     "|": "\u0622",  // madda
@@ -178,6 +185,8 @@ var buck2uni = {
     "{": "\u0671"   // waSla
 };
 
+var harakaat = ['a', 'u', 'i', 'F', 'N', 'K', '~', 'o'];
+
 
 var uni2buck = {};
 for (var key in buck2uni){
@@ -186,7 +195,8 @@ for (var key in buck2uni){
 
 function lookup(word){
     //takes in arabic word, returns arabic
-    word = transliterate(word);
+    word = removeDiacriticsBuckwalter(transliterate(word));
+    //console.log(detransliterate(word), word);
     var data = [];
 
     for(var i = 0; i < word.length; i++){
@@ -367,5 +377,7 @@ function initialize(){
 
 initialize();
 
-//TODO clear css (esp spans), figure out gloss, strip diacritics bug, make update dynamic (e.g. youtube)
+//TODO clear css (esp spans), figure out gloss, make update dynamic (e.g. youtube)
+//TODO bug in roots
+//TODO escape html
 
