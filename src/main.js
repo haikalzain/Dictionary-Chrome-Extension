@@ -377,6 +377,7 @@ function initialize(){
 
 initialize();
 
+
 //TODO clear css (esp spans), figure out gloss, make update dynamic (e.g. youtube)
 //TODO bug in roots
 //TODO escape html
