@@ -1,0 +1,19 @@
+The following files are GPL licensed components of the Aratools Arabic-English dictionary. They are
+part of Tim Buckwalters Aramorph Arabic morphological analyzer. 
+
+dictprefixes
+dictstems
+dictsuffixes
+tableab
+tableac
+tablebc
+
+Possible sources for the full version of this software are:
+
+Linguistic Data Consortium (available for free for research purposes)
+http://hunspell.sourceforge.net/buckwalter_morphan_1_hunspell_patch.tar.gz
+The aramorph/src/java/gpl/pierrick/brihaye/aramorph/ subdirectory of the
+http://www.nongnu.org/aramorph/ project (available in the open source code
+repository or Java JAR file).
+
+See the file gpl.txt and the top comment of each file for further details.

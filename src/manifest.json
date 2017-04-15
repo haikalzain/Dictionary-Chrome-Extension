@@ -1,13 +1,11 @@
 {
-  // Required
-  "manifest_version": 2,
-  "name": "Arabic-Dict",
-  "version": "1.0",
-  "description": "Lookup arabic words on the fly",
-  "permissions": [
-    "activeTab",
-    "http://www.aratools.com/*"
-  ],
+"manifest_version": 2,
+"name": "Arabic Dictionary",
+"version": "1.0",
+"description": "Look Up Arabic Words on the Fly!",
+"permissions": [
+"activeTab"
+],
   "web_accessible_resources": [
     "data/tableab",
     "data/tableac",
@@ -16,12 +14,11 @@
     "data/dictstems",
     "data/dictsuffixes"
   ],
+  "icons": {"48": "icon48.png",
+          "128": "icon128.png" },
   "content_scripts": [{
     "matches": ["<all_urls>"],
     "js": ["main.js", "libs/opentip-native.min.js"],
     "css": ["libs/opentip.css", "main.css"]
   }]
-  /*"background": {
-    "scripts": ["main.js"]
-  }*/
 }

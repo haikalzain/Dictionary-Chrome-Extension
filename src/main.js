@@ -4,7 +4,7 @@ function readFile(url){
         var req = new XMLHttpRequest();
         req.open('GET', url);
         req.onload = function(){
-            if(req.status == 200){
+            if(req.status == 200 || req.status == 0){
                 resolve(req.responseText);
             }
             else{
