@@ -196,7 +196,7 @@ for (var key in buck2uni){
 function lookup(word){
     //takes in arabic word, returns arabic
     word = removeDiacriticsBuckwalter(transliterate(word));
-    //console.log(detransliterate(word), word);
+    
     var data = [];
 
     for(var i = 0; i < word.length; i++){
@@ -236,13 +236,13 @@ function lookupPrefStemSuff(pref, stem, suff){
            suffMatches.forEach(function(suff){
                if(isObeysGrammar(pref.morph, stem.morph, suff.morph)) {
                    var combine = {};
-                   //console.log("ok so far");
+                  
                    combine.root = detransliterate(stem.root);
                    combine.word =
                        [detransliterate(pref.word), detransliterate(stem.word), detransliterate(suff.word)].join('');
-                   //console.log('boom');
+                   
                    combine.def = [bracketify(pref.def, 2), stem.def, bracketify(suff.def, 1)].join('');
-                   //console.log(combine.def);
+                   
                    combine.pos = [pref.pos, stem.pos, suff.pos].join(', ');
                    combine.morph = [pref.morph, stem.morph, suff.morph].join(', ');
                    data.push(combine);
@@ -260,7 +260,7 @@ function isObeysGrammar(prefMorph, stemMorph, suffMorph){
         && tableac.get(prefMorph).indexOf(suffMorph) != -1;
 }
 
-// Loading dictionary code
+// Loading dictionary
 
 var initialized = false;
 var dictstems;
@@ -286,7 +286,6 @@ function loadDictData() {
         tablebc = values[4];
         tableac = values[5];
         initialized = true;
-        //console.log('initialization complete');
     });
 
 };
@@ -296,7 +295,7 @@ var arabicChars = "";
 for(var char in uni2buck){
     arabicChars += char;
 }
-//var arabicWordRegex = new RegExp("([" + arabicChars+"]+)");
+
 function isArabicWord(text){
     return arabicWordRegex.test(text);
 }
@@ -331,7 +330,7 @@ function createDefintionsHTML(data){
 
 function wrapArabicWords(){
     // puts spans around arabic words
-    //console.log('beginning wrap task');
+
     var curElem, a=[], walk=document.createTreeWalker( document.documentElement, NodeFilter.SHOW_TEXT, null, false);
     while(curElem=walk.nextNode()){
         a.push(curElem);
@@ -350,20 +349,17 @@ function wrapArabicWords(){
 
         var spanElem = document.createElement("span");
         spanElem.innerHTML = newHTML;
-        //console.log("parent: ", curElem.parentNode);
         curElem.parentNode.replaceChild(spanElem, curElem);
     });
-    //console.log('we are here');
+	
     Opentip.lastZIndex = 1000000000;
     var elems = document.getElementsByClassName('arabic-wrapped-31245');
     for(var i = 0; i < elems.length; i++){
         var elem = elems[i];
-        //console.log(lookup(elem.textContent));
         new Opentip(elem, createDefintionsHTML(lookup(elem.textContent)), {style:'glass'});
 
 
     }
-    //console.log("wrapping complete");
 
 
 }
