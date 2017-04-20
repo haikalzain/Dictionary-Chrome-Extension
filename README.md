@@ -1,7 +1,12 @@
 # arabic-dict-chrome
 Arabic Dictionary Chrome extension based on open-source dictionary data.
-Displays a popup with the English translation of the word when you hover over an Arabic word.
-Get it here: https://chrome.google.com/webstore/detail/arabic-dictionary/loipjegagmfjcbofhmigjemdfcahcggm/reviews?hl=en
+Just hover your cursor over an Arabic word and the translation pops up!
+
+## Arabic Dictionary in action!
+![screenshot-image](https://github.com/haikalzain/arabic-dict-chrome/blob/master/images/screenshot.png)
+
+Get it on the Chrome Web Store: 
+https://chrome.google.com/webstore/detail/arabic-dictionary/loipjegagmfjcbofhmigjemdfcahcggm/reviews?hl=en
 
 ## Usage
 
