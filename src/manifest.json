@@ -1,11 +1,9 @@
 {
-"manifest_version": 2,
-"name": "Arabic Dictionary",
-"version": "1.0",
-"description": "Look Up Arabic Words on the Fly!",
-"permissions": [
-"activeTab"
-],
+  "manifest_version": 2,
+  "name": "Arabic Dictionary",
+  "version": "1.1",
+  "description": "Look Up Arabic Words on the Fly!",
+  "permissions": [],
   "web_accessible_resources": [
     "data/tableab",
     "data/tableac",
